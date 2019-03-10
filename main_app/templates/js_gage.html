@@ -1,0 +1,52 @@
+<script src="../static/js/raphael-2.1.4.min.js"></script>
+<script src="../static/js/justgage.js"></script>
+<script>
+  var gT, gH, gP, gL;
+  document.addEventListener("DOMContentLoaded", function(event) {
+    gT = new JustGage({
+      id: "gT",
+      value: "{{ last_measurement.room_Temperature }}",
+      valueFontColor: "Black",
+      min: 10,
+      max: 35,
+      title: "Temperature",
+      label: "Celcius",
+      decimals: 2,
+      levelColorsGradient: false,
+      levelColors: ['#EE0000','#EE0000','#EE0000']
+    });
+    gH = new JustGage({
+      id: "gH",
+      value: "{{ last_measurement.room_Humidity }}",
+      valueFontColor: "Black",
+      min: 0,
+      max: 100,
+      title: "Humidity",
+      label: "%",
+      levelColorsGradient: false,
+      levelColors: ['#22b0f0','#22b0f0','#22b0f0']
+    });
+    gP = new JustGage({
+      id: "gP",
+      value: "{{ last_measurement.room_Pressure }}",
+      valueFontColor: "Black",
+      min: 900,
+      max: 1100,
+      title: "Pressure",
+      label: "hPa",
+      levelColorsGradient: false,
+      levelColors: ['#ff00ff','#ff00ff','#ff00ff']
+    });
+    gL = new JustGage({
+      id: "gL",
+      value: "{{ last_measurement.room_Light }}",
+      valueFontColor: "Black",
+      min: 0,
+      max: 32000,
+      title: "Light",
+      label: "Lux",
+      levelColorsGradient: false,
+      levelColors: ['#ffb90f','#ffb90f','#ffb90f']
+    });
+  });
+</script>

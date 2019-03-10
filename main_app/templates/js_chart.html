@@ -1,0 +1,232 @@
+<script src="../static/js/highstock.js"></script>
+<script src="../static/js/jquery.js"></script>
+
+<script>
+
+var chart_t_h = CreateChart('Chart_T_H', "Temperature", "#EE0000","Humidity","#22b0f0")
+var chart_p_l = CreateChart('Chart_P_L', "Pressure", "#ff00ff","Light","#ffb90f")
+
+function CreateChart(chartFromHtml, yAxisLeftString, yAxisLeftColor, yAxisRightString, yAxisRightColor){
+
+  var chart = Highcharts.chart(chartFromHtml, {
+      "chart":{
+        "type":"line",
+        "zoomType":"x",
+        "backgroundColor": "transparent",
+        "alignTicks": false,
+        "events": {
+        }
+      },
+      "rangeSelector": {
+                "selected": 1
+      },
+      "title":{
+        "text":""
+      },
+      "xAxis":{
+        "categories":GetData("Date"),
+     },
+     "scrollbar":{
+       "enabled":true,
+       "barBackgroundColor":"gray",
+       "barBorderRadius":7,
+       "barBorderWidth":0,
+       "buttonBackgroundColor":"gray",
+       "buttonBorderWidth":0,
+       "buttonArrowColor":"yellow",
+       "buttonBorderRadius":7,
+       "rifleColor":"yellow",
+       "trackBackgroundColor":"white",
+       "trackBorderWidth":1,
+       "trackBorderColor":"silver",
+       "trackBorderRadius":7
+     },
+     "yAxis":[ {
+       "gridLineColor":"#c1cdcd",
+       "title":{
+         "text":yAxisLeftString
+       }
+     },
+     {
+       "gridLineColor":"#c1cdcd",
+       "title":{
+         "text":yAxisRightString
+       },
+       "opposite": true
+     }
+   ],
+     "legend":{
+       "shadow": true,
+       "verticalAlign": "top"
+     },
+     "tooltip": {
+              "useHTML": true,
+              "headerFormat": '<small>{point.key}</small><table>',
+              "pointFormat": '<tr><td style="color: {series.color}">{series.name}:{point.y} </td>',
+              "footerFormat": '</table>',
+              "valueDecimals": 2,
+              "crosshairs": [{
+                  "width": 1,
+                  "color": 'Gray'
+              }, {
+                  "width": 1,
+                  "color": 'gray'
+              }]
+          },
+     "plotOptions":{
+       "column":{
+         "pointPadding":0.2,
+         "borderWidth":0.5
+       }
+     },
+     "series":[{
+       'turboThreshold': 0, //
+       "name":yAxisLeftString,
+       "data":GetData(yAxisLeftString),
+       "color":yAxisLeftColor
+        },
+     {
+       'turboThreshold': 0,
+       "name":yAxisRightString,
+       "data":GetData(yAxisRightString),
+       "color":yAxisRightColor,
+       "yAxis":1
+     }
+   ]
+  });
+
+  return chart;
+}
+
+function GetData(axisString){
+  if(axisString == "Temperature") {
+    return [{% for measurement in measurements %} {{ measurement.room_Temperature }}, {% endfor %}]
+  }
+  if(axisString == "Humidity"){
+    return [{% for measurement in measurements %} {{ measurement.room_Humidity }}, {% endfor %}]
+  }
+  if(axisString == "Pressure"){
+    return [{% for measurement in measurements %} {{ measurement.room_Pressure }}, {% endfor %}]
+  }
+  if(axisString == "Light"){
+    return [{% for measurement in measurements %} {{ measurement.room_Light }}, {% endfor %}]
+  }
+  if (axisString == "Date") {
+    return [{% for measurement in measurements %} "{{ measurement.room_Date }}", {% endfor %}]
+  }
+}
+
+normalState = new Object();
+normalState.stroke_width = null;
+normalState.stroke = null;
+normalState.fill = null;
+normalState.padding = null;
+normalState.style = hash('text-decoration', 'underline');
+
+hoverState = new Object();
+hoverState = normalState;
+
+pressedState = new Object();
+pressedState = normalState;
+
+function hash() {
+        var i = 0,
+        args = arguments,
+        length = args.length,
+        obj = {};
+        for (; i < length; i++) {
+        obj[args[i++]] = args[i];
+        }
+        return obj;
+}
+
+function UpdateChart(chart,categories, yAxisLeftData, yAxisRightData) {
+  chart.xAxis[0].setCategories(categories, false);
+  chart.redraw();
+  chart.update({
+    "series":[{
+      "data":yAxisLeftData
+    },
+    {
+      "data":yAxisRightData,
+      "yAxis":1
+    }
+  ]
+});
+}
+OnButton(chart_t_h,'/lastMonthTH/', "Date", 0, "Temperature", 1, "Humidity", 2);
+OnButton(chart_p_l,'/lastMonthPL/', "Date", 'room_Date', "Pressure", 'room_Pressure', "Light", 'room_Light');
+
+function OnButton(chart,urlname, categoriesData, categoriesFormattedData, yAxisLeftData, yAxisLeftFormattedData,yAxisRightData,yAxisRightFormattedData) {
+  var chart1Daybutton = chart.renderer.button('1Day', 52, 10, function(){
+             var roomCategoriesData = GetData(categoriesData);
+             var roomYAxisLeftData = GetData(yAxisLeftData);
+             var roomYAxisRightData = GetData(yAxisRightData);
+             UpdateChart(chart,roomCategoriesData, roomYAxisLeftData, roomYAxisRightData);
+             unselectButtons();
+             this.setState(2);
+          },normalState,hoverState,pressedState).add();
+
+  var chart1Monthbutton = chart.renderer.button('1Month', 96, 10, function(event){
+              event.preventDefault();
+              $.ajax({
+                url : urlname,
+                dataType: 'json',
+                success : function(response) {
+                  chart.update(response)
+                }
+              });
+              unselectButtons();
+              this.setState(2);
+          },normalState,hoverState,pressedState).add();
+
+  var chart1Yearbutton = chart.renderer.button('1Year', 152, 10, function(){
+              alert('In Work. Missing implementation');
+              unselectButtons();
+              this.setState(2);
+          },normalState,hoverState,pressedState).add();
+
+  function unselectButtons() {
+    chart1Daybutton.setState(0);
+    chart1Monthbutton.setState(0);
+    chart1Yearbutton.setState(0);
+  }
+}
+
+Highcharts.Pointer.prototype.onContainerTouchStart = Highcharts.Pointer.prototype.onContainerMouseDown;
+var onContainerMouseMove = Highcharts.Pointer.prototype.onContainerMouseMove;
+Highcharts.Pointer.prototype.onContainerTouchMove = function(e) {
+    onContainerMouseMove.call(this, e);
+    if ("touchstart" === this.chart.mouseIsDown) {
+        this.drag(e);
+    }
+};
+</script>
+
+<script>
+  var loc = window.location;
+  var wsStart = 'ws://';
+  if (loc.protocol == 'https:') {
+    wsStart = 'wss://'
+  }
+  var endpoint = wsStart + loc.host + loc.pathname;
+
+  var socket = new WebSocket(endpoint);
+
+  socket.onmessage = function(e) {
+    var myObj = JSON.parse(e.data);
+    gT.refresh(myObj.temperature);
+    gH.refresh(myObj.humidity);
+    gP.refresh(myObj.pressure);
+    gL.refresh(myObj.light);
+  };
+  socket.onopen = function(e) {
+    console.log("open", e);
+  };
+  socket.onerror = function(e) {
+    console.log("error", e)
+  };
+  socket.onclose = function(e) {
+    console.log("close", e)
+  };
+</script>

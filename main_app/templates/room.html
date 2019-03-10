@@ -1,0 +1,45 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/gage/gage.css' %}" rel="stylesheet">
+  <title>Living Room</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />    <!-- TODO: it seems that it is not necessary-->
+</head>
+
+<body>
+  <h1>Living Room</h1>
+  <div class="row">
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-lx-6">
+      <div class="floatright" id="gT"></div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-lx-6">
+      <div class="floatleft" id="gH"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-lx-6">
+      <div class="floatright" id="gP"></div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-lx-6">
+      <div class="floatleft" id="gL"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-lx-6">
+      <div id="Chart_T_H" style="height: 400px; min-width: 600px"></div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-lx-6">
+      <div id="Chart_P_L" style="height: 400px; min-width: 600px"></div>
+    </div>
+  </div>
+</body>
+
+{% include 'js_gage.html' %}
+{% include 'js_chart.html' %}
+
+</html>

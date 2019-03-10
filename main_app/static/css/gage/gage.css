@@ -1,0 +1,22 @@
+
+body {
+  text-align: center;
+}
+
+#gT,
+#gH,
+#gP,
+#gL {
+  width: 200px;
+  height: 160px;
+  display: inline-grid;
+  margin: 1em;
+}
+
+.floatright {
+  float: right;
+}
+
+.floatleft {
+  float: left;
+}
